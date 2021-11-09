@@ -1,5 +1,5 @@
 /*************************************************************************************************************************************
- *                                                  Realization functions ENERGYMERA
+ *                                                  Realization functions ENERGYMERA                                                 *
  *************************************************************************************************************************************/
 
 #include "is74_workflow.h"
@@ -23,20 +23,16 @@ extern uint8_t tmp[268];                                                        
 
 
 /* The function of connection request */
-void connect_energy_mera(void)
-{
+void connect_energy_mera(void) {
   static uint8_t count = 0;
   
   /* Open connetion with EnergyMera */
   request_enr(OpenConnectEnr, sizeof(OpenConnectEnr)/sizeof(uint8_t), 16); 
   
-  while(true)
-  {
-    if(dm_to_is74_main_var.RxComplete)
-    {
+  while(true) {
+    if(dm_to_is74_main_var.RxComplete) {
       for(uint8_t i = 0; i < 16; i++)
-        if(UART2_RX_buff[i] != 0x00)
-        {
+        if(UART2_RX_buff[i] != 0x00) {
           Common.isOpen = 0x01;
           break;
         }
@@ -51,8 +47,7 @@ void connect_energy_mera(void)
       
       /* If the device does not respond more 
          than 20 times go to the next */
-      if(count > 10)
-      {
+      if(count > 10) {
         Common.isOpen = 0x01;
         Common.error = 0x01;
         count = 0;
@@ -69,20 +64,18 @@ void connect_energy_mera(void)
 }
 
 /* The function converts answer from byte to string */
-void to_string_req_enr(char *arg)
-{  
+void to_string_req_enr(char *arg) {  
   uint16_t count = 0; 
   
   while( UART2_RX_buff[count] != 0x03)
     count++;
   
-  for(uint16_t i = 0; i < count+1; i++)
+  for(uint16_t i = 0; i < count + 1; i++)
     arg[i] = (char)UART2_RX_buff[i];
 }
 
 /* The function forms and send the query string for UART */
-void request_enr(uint8_t *req, uint8_t len, uint16_t size_rec)
-{
+void request_enr(uint8_t *req, uint8_t len, uint16_t size_rec) {
   for(int i = 0; i < len; i++)                                                              // Bytes of data
     UART2_TX_buff[i] = req[i] & 0x7F;                                                       // Convert 8N1 to 7E1                                                                                                                          
 
@@ -95,14 +88,11 @@ void run_energy_mera(void)
   
 }
 
-void send_lora_energy_mera(void)
-{
-  if(Common.error)
-  {
+void send_lora_energy_mera(void) {
+  if(Common.error) {
     // There are some errors
   }
-  else
-  {
+  else {
     // There aren't any errors
   }
 }
