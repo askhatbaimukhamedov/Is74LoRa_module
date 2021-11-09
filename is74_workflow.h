@@ -1,6 +1,6 @@
 /*************************************************************************************************************************************
- *  is74_workflow.h - is a main include file for IS74 programming team
- *  2019 Intersviyaz (*)> quack quack
+ *  is74_workflow.h - is a main include file for IS74 programming team                                                               *
+ *  2019 Intersviyaz (*)> quack quack                                                                                                *
  *************************************************************************************************************************************/
 
 #ifndef __IS74_WORKFLOW_H__
@@ -9,7 +9,7 @@
 
 
 /*************************************************************************************************************************************
- *                                                         Includes
+ *                                                         Includes                                                                  *
  *************************************************************************************************************************************/
 #include "hw.h"
 #include "bsp.h"
@@ -17,7 +17,7 @@
    
 
 /*************************************************************************************************************************************
- *                                                          Defines
+ *                                                          Defines                                                                  *
  *************************************************************************************************************************************/
 #define SIZE_TXRX      256                                   // Response string size (Max request string of SPT-943.1 = 68 data bytes)
 #define HOUR           3600000
@@ -47,25 +47,23 @@
 
 
 /*************************************************************************************************************************************
- *                                                Is74_state_machine_definition
+ *                                                Is74_state_machine_definition                                                      *
  *************************************************************************************************************************************/
-typedef enum __is74_mainstate
-{
+typedef enum __is74_mainstate {
    IS74_STATE_IDLE,
    IS74_STATE_WAIT_FOR_RESPONSE,
    IS74_STATE_WAIT_FOR_JOIN,
    IS74_STATE_RS485_CONNECT,
    IS74_STATE_NO_LORAWAN_NET,
-
+   
 }is74_mainstate;
 
 
 
 /*************************************************************************************************************************************
- *                                                   Structres and variables
+ *                                                   Structres and variables                                                         *
  *************************************************************************************************************************************/
-struct Connections
-{
+struct Connections {
   /* Target device */
   uint8_t whoami;                                           // Energymera = 1, mercury = 2.
   
@@ -104,10 +102,8 @@ struct Connections
   uint8_t relay[4];                                         // Relay number
 };
 
-struct RelayStrats
-{
-  /* Time of the on/off for 
-     different relays */
+struct RelayStrats {
+  /* Time of the on/off for different relays */
    uint32_t strat_relay1[2];
    uint32_t strat_relay2[2];
    uint32_t strat_relay3[2];
@@ -118,8 +114,7 @@ struct RelayStrats
    int8_t arr_coef_off[72];
 };
 
-typedef enum __is74_whoami
-{ 
+typedef enum __is74_whoami { 
    energy_mera = 1,
    mercury,    
 
@@ -131,10 +126,9 @@ typedef struct RelayStrats RelayStrat;
 
 
 /*************************************************************************************************************************************
- *                                                     Uart configuration
+ *                                                     Uart configuration                                                            *
  *************************************************************************************************************************************/
-typedef struct __is74_UART_Init_Variable
-{
+typedef struct __is74_UART_Init_Variable {
   uint32_t BaudRate;                                     /*!< This member configures the UART communication baud rate. */
   uint32_t WordLength;                                   /*!< Specifies the number of data bits transmitted or received in a frame.
                                                               This parameter can be a value of @ref UARTEx_Word_Length. */
@@ -147,26 +141,23 @@ typedef struct __is74_UART_Init_Variable
 
 
 /*************************************************************************************************************************************
- *                                           ENERGYMERA (102, 303)  | INTERFACE RS-485 
+ *                                           ENERGYMERA (102, 303)  | INTERFACE RS-485                                               *
  *************************************************************************************************************************************/
 /********************************************* Connection structure with ENERGYMERA **************************************************/
  
-struct ConnectionENR
-{
+struct ConnectionENR {
   /* Service information */
   char model[15];
   char serialNum[16];
   char currentDate[22];
   char currentTime[22];
   
-  /* Stored energy. Month 
-     beginning Month */
+  /* Stored energy. Month beginning Month */
   //char total[200];
   char storeEnrMonth[100];
   char storeEnrBegMonth[100];
   
-  /* Stored energy. Day
-     beginning Day */
+  /* Stored energy. Day beginning Day */
   char storeEnrDay[250];
   char storeEnrLDay[250];
   
@@ -215,24 +206,21 @@ static uint8_t GetFreqEnr[]      = {0x01, 0x52, 0x31, 0x02, 0x46, 0x52, 0x45, 0x
 
 
 /*************************************************************************************************************************************
- *                                                 MERCURY  | INTERFACE RS-485 
+ *                                                 MERCURY  | INTERFACE RS-485                                                       *
  *************************************************************************************************************************************/
 /********************************************** Connection structure with MERCURY ****************************************************/
  
-struct ConnectionMER
-{
+struct ConnectionMER {
   /* Service information */
   uint8_t serviceInfo[4];
   uint8_t dateTime[8];
   
-  /* Stored energy. Month 
-     beginning Month */
+  /* Stored energy. Month beginning Month */
   uint8_t storeEnrMonth[96];
   uint8_t storeEnrBegMonth[80];
   uint8_t energySinceRes[96];
   
-  /* Stored energy. Day
-     beginning Day */
+  /* Stored energy. Day beginning Day */
   uint8_t storeEnrDay[80];
   uint8_t storeEnrLDay[96];
   
@@ -286,7 +274,7 @@ static uint8_t ProfileOfPower[]  = {0x00, 0x06, 0x03, 0x00, 0x00, 0x0F};
 
 
 /*************************************************************************************************************************************
- *                                                      Function prototype
+ *                                                      Function prototype                                                           *
  *************************************************************************************************************************************/
 
 /* General functions */
