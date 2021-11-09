@@ -1,5 +1,5 @@
 /*************************************************************************************************************************************
- *                                                    Realization functions RELAY
+ *                                                    Realization functions RELAY                                                    *
  *************************************************************************************************************************************/
 
 #include "is74_workflow.h"
@@ -18,14 +18,11 @@ extern Connect Common;
 
 
 /* The function to on/off relay */
-void onoff_relay(uint32_t time)
-{
+void onoff_relay(uint32_t time) {
   bool flag = true;
   /* Run on the strategy of on and off */
-  for(uint8_t i = 0; i < 2; i++)
-  {
-    if(time == strat.strat_relay1[i])
-    {
+  for(uint8_t i = 0; i < 2; i++) {
+    if(time == strat.strat_relay1[i]) {
       /* Turn on / off relay 1 */
       dmAPI_OutputSetState(&output_ok_1, (i) ? OUTPUT_OFF : OUTPUT_ON); 
       static uint8_t count = 0;
@@ -38,8 +35,7 @@ void onoff_relay(uint32_t time)
       uint8_t status_answer[] = {0x01, !i};
       dmAPI_LoRaWAN_Send(status_answer, sizeof(status_answer)/sizeof(uint8_t), 0x00, 0x01);
     }
-    else if(time == strat.strat_relay2[i])
-    {
+    else if(time == strat.strat_relay2[i]) {
       /* Turn on / off relay 2 */
       dmAPI_OutputSetState(&output_ok_2, (i) ? OUTPUT_OFF : OUTPUT_ON);
       
@@ -50,8 +46,7 @@ void onoff_relay(uint32_t time)
       uint8_t status_answer[] = {0x02, !i};
       dmAPI_LoRaWAN_Send(status_answer, sizeof(status_answer)/sizeof(uint8_t), 0x00, 0x01);
     }
-    else if(time == strat.strat_relay3[i])
-    {
+    else if(time == strat.strat_relay3[i]) {
       /* Turn on / off relay 3 */
       dmAPI_OutputSetState(&output_ok_3, (i) ? OUTPUT_OFF : OUTPUT_ON);
       
@@ -62,8 +57,7 @@ void onoff_relay(uint32_t time)
       uint8_t status_answer[] = {0x03, !i};
       dmAPI_LoRaWAN_Send(status_answer, sizeof(status_answer)/sizeof(uint8_t), 0x00, 0x01);
     }
-    else if(time == strat.strat_relay4[i])
-    {
+    else if(time == strat.strat_relay4[i]) {
       /* Turn on / off relay 4 */
       dmAPI_OutputSetState(&output_ok_4, (i) ? OUTPUT_OFF : OUTPUT_ON); 
       
@@ -77,8 +71,7 @@ void onoff_relay(uint32_t time)
     else 
       flag = false;
   }
-  if(flag) 
-  {
+  if(flag) {
     Common.flag_relay_status = true;
     HAL_Delay(10000);
   } 
