@@ -1,5 +1,5 @@
 /*************************************************************************************************************************************
- *                                                    Realization functions MERCURY
+ *                                                    Realization functions MERCURY                                                  *
  *************************************************************************************************************************************/
 
 #include "is74_workflow.h"
@@ -29,8 +29,7 @@ extern uint8_t tmp[268];                                                        
 
 
 /* The function of connection request */
-void connect_mercury(void)
-{
+void connect_mercury(void) {
   static uint8_t count = 0;
   set_net_addr((Common.request_04 || Common.request_05) 
                 ? Common.netAddr : Common.netAddrDev[Common.net_addr_count]);
@@ -38,13 +37,10 @@ void connect_mercury(void)
   /* Open connetion with Mercury */
   request_mercury(OpenConnectMer, sizeof(OpenConnectMer)/sizeof(uint8_t), 4);               
   
-  while(true)
-  { 
-    if(dm_to_is74_main_var.RxComplete)
-    { 
+  while(true) { 
+    if(dm_to_is74_main_var.RxComplete) { 
       for(uint8_t i = 0; i < 4; i++)
-        if(UART2_RX_buff[i] != 0x00)
-        {
+        if(UART2_RX_buff[i] != 0x00) {
           Common.isOpen = 0x01;
           count = 0;
         }
@@ -56,8 +52,7 @@ void connect_mercury(void)
       
       /* If the device does not respond more 
          than 20 times go to the next */
-      if(count > 10)
-      {
+      if(count > 10) {
         Common.isOpen = 0x01;
         Common.error = 0x01;
         count = 0;
@@ -73,12 +68,10 @@ void connect_mercury(void)
 }
 
 /* Initialization service information Mercury */
-void init_mercury(void)
-{
+void init_mercury(void) {
   uint32_t tmp_serial[4] = {0x00};
   
-  for(uint8_t i = 0; i < sizeof(MerCon.serviceInfo)/sizeof(uint8_t); i++)
-  {
+  for(uint8_t i = 0; i < sizeof(MerCon.serviceInfo)/sizeof(uint8_t); i++) {
     MerCon.serviceInfo[i] = UART2_RX_buff[i+1];
     tmp_serial[i] = UART2_RX_buff[i+1];
   }
@@ -88,8 +81,7 @@ void init_mercury(void)
 }
 
 /* The function reads current date/time and saves them */
-void init_time_date_mercury(void)
-{
+void init_time_date_mercury(void) {
   for(uint8_t i = 0; i < sizeof(MerCon.dateTime)/sizeof(uint8_t); i++)                      // Consists of Season (01 = Winter, 00 = Summer),
     MerCon.dateTime[i] = UART2_RX_buff[i+1];                                                // Year, Month, Day of the week, Day, Hour,
   
@@ -99,8 +91,7 @@ void init_time_date_mercury(void)
   
   bool other_dev = false;
   
-  for(uint8_t i = 0; i < sizeof(MerCon.serviceInfo)/sizeof(uint8_t); i++)
-  {
+  for(uint8_t i = 0; i < sizeof(MerCon.serviceInfo)/sizeof(uint8_t); i++) {
     if(tmp_serial[i] != MerCon.serviceInfo[i])
       other_dev = true;
   }
@@ -108,9 +99,7 @@ void init_time_date_mercury(void)
   /* If true send data for the month */
   dm_API_ReastoreFromEEPROM(EEPROM_L_MONTH, Common.l_month, 0x05);
   
-  if((Common.l_month[Common.net_addr_count-1] != MerCon.dateTime[5] 
-      && 0x00 != MerCon.dateTime[5]) || other_dev)
-  {
+  if((Common.l_month[Common.net_addr_count-1] != MerCon.dateTime[5] && 0x00 != MerCon.dateTime[5]) || other_dev) {
     Common.send_month = true;
     Common.l_month[Common.net_addr_count-1] = MerCon.dateTime[5];
     dm_API_SaveToEEPROM(EEPROM_L_MONTH, Common.l_month, 0x05);
@@ -119,9 +108,7 @@ void init_time_date_mercury(void)
   /* If true send data for the day */
   dm_API_ReastoreFromEEPROM(EEPROM_L_DAY, Common.l_day, 0x05);
   
-  if((Common.l_day[Common.net_addr_count-1] != MerCon.dateTime[4] 
-      && 0x00 != MerCon.dateTime[4]) || other_dev)
-  {
+  if((Common.l_day[Common.net_addr_count-1] != MerCon.dateTime[4] && 0x00 != MerCon.dateTime[4]) || other_dev) {
     Common.send_day = true;
     Common.l_day[Common.net_addr_count-1] = MerCon.dateTime[4];  
     dm_API_SaveToEEPROM(EEPROM_L_DAY, Common.l_day, 0x05);
@@ -129,8 +116,7 @@ void init_time_date_mercury(void)
 }
 
 /* The function forms and send the message for UART */
-void request_mercury(uint8_t *req, uint8_t len, uint16_t size_rec)                          // Forms response command
-{ 
+void request_mercury(uint8_t *req, uint8_t len, uint16_t size_rec) {                        // Forms response command
   /* Bytes of data */
   for(int i = 0; i < len; i++)                                                             
     UART2_TX_buff[i] = req[i];
@@ -145,8 +131,7 @@ void request_mercury(uint8_t *req, uint8_t len, uint16_t size_rec)              
 }
 
 /* The function to change commands. (Select addr Mercury ) */
-void set_net_addr(uint8_t addr)
-{
+void set_net_addr(uint8_t addr) {
     /* Service commands */
     OpenConnectMer[0] = addr;
     CloseConnectMer[0] = addr;
@@ -175,16 +160,14 @@ void set_net_addr(uint8_t addr)
 }
 
 /* The function return address for stored energy */
-uint16_t  addr_return(uint8_t arg)
-{
+uint16_t  addr_return(uint8_t arg) {
   uint16_t res[] = {0, 682, 767, 852, 937, 1022, 1107, 
                     1192, 1277, 1362, 1447, 1532, 1617};
   return res[arg];
 }
 
 /* The function init profile of power */
-void init_propow_mercury(void)
-{
+void init_propow_mercury(void) {
   /* Save the config module of power */
   for(uint8_t i = 0; i < sizeof(MerCon.config_pro_pow)/sizeof(uint8_t); i++)
     MerCon.config_pro_pow[i] = UART2_RX_buff[i+1];
@@ -195,20 +178,16 @@ void init_propow_mercury(void)
 }
 
 /* The main function Mercury */
-void run_mercury(void)
-{
+void run_mercury(void) {
   /* If connection is open continue request */
-  if(Common.isOpen && Common.netAddrDev[0] != 0x00)
-  {   
+  if(Common.isOpen && Common.netAddrDev[0] != 0x00) {   
     /********************************** SERVICE DATA ************************************/
-    if(Common.complete && Common.index_com == 1)
-    {
+    if(Common.complete && Common.index_com == 1) {
       /* Read service information */
       request_mercury(ServiceInfoMer, sizeof(ServiceInfoMer)/sizeof(uint8_t), 20);  
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 2)
-    {
+    if(Common.complete && Common.index_com == 2) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       init_mercury();
@@ -216,8 +195,7 @@ void run_mercury(void)
       request_mercury(CurrDateTimeMer, sizeof(CurrDateTimeMer)/sizeof(uint8_t), 12);        // Read current time
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 3)
-    {
+    if(Common.complete && Common.index_com == 3) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -237,8 +215,7 @@ void run_mercury(void)
     }
     
     /************************* SORED ENERGY (INTEGRAL DATA) *****************************/
-    if(Common.complete && Common.index_com == 4)
-    {
+    if(Common.complete && Common.index_com == 4) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -254,8 +231,7 @@ void run_mercury(void)
       request_mercury(StoreEnrMerBegM, sizeof(StoreEnrMerBegM)/sizeof(uint8_t), 85);        // Read stored energy (For beginn-g Month)
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 5)
-    {
+    if(Common.complete && Common.index_com == 5) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -265,8 +241,7 @@ void run_mercury(void)
       request_mercury(StoreEnrMerBegD, sizeof(StoreEnrMerBegD)/sizeof(uint8_t), 85);        // Read stored energy (For beginn-g current day)
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 6)
-    {
+    if(Common.complete && Common.index_com == 6) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -276,8 +251,7 @@ void run_mercury(void)
       request_mercury(LossesEnrM, sizeof(LossesEnrM )/sizeof(uint8_t), 20);                 // Read losses for month
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 7)
-    {
+    if(Common.complete && Common.index_com == 7) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -287,8 +261,7 @@ void run_mercury(void)
       request_mercury(StoreEnrMerLD, sizeof(StoreEnrMerLD)/sizeof(uint8_t), 100);            // Read stored energy (For last day)
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 8)
-    {
+    if(Common.complete && Common.index_com == 8) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -298,8 +271,7 @@ void run_mercury(void)
       request_mercury(LossesEnrD, sizeof(LossesEnrD)/sizeof(uint8_t), 20);                       
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 9)
-    {
+    if(Common.complete && Common.index_com == 9) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -311,8 +283,7 @@ void run_mercury(void)
     }
     
     /******************************** CURRENT DATA *************************************/
-    if(Common.complete && Common.index_com == 10)
-    {
+    if(Common.complete && Common.index_com == 10) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -323,8 +294,7 @@ void run_mercury(void)
       request_mercury(CurrentData, sizeof(CurrentData)/sizeof(uint8_t), 85);
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 11)
-    {
+    if(Common.complete && Common.index_com == 11) {
       /* Is empty metrika */
       Common.error = (Common.error) ? Common.error : is_empty_metrika();
       
@@ -338,8 +308,7 @@ void run_mercury(void)
     }
     
     /******************************* PROFILE OF POWER ***********************************/
-    if(Common.complete && Common.index_com == 12)
-    {
+    if(Common.complete && Common.index_com == 12) {
        /* Init the profile of power */
        init_propow_mercury(); 
        clear_ans();     
@@ -348,8 +317,7 @@ void run_mercury(void)
        request_mercury(ProfileOfPower, sizeof(ProfileOfPower)/sizeof(uint8_t), 20);          
        Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 13)
-    {
+    if(Common.complete && Common.index_com == 13) {
       for(uint8_t i = 0; i < 15; i++)
         MerCon.profile_pow[i] = UART2_RX_buff[i+1];
           
@@ -362,8 +330,7 @@ void run_mercury(void)
       request_mercury(CloseConnectMer, sizeof(CloseConnectMer)/sizeof(uint8_t), 5);               
       Common.complete = 0;
     }
-    if(Common.complete && Common.index_com == 14)
-    {
+    if(Common.complete && Common.index_com == 14) {
       clear_ans();                                                                          
       dm_to_is74_main_var.RxComplete = true;
       Common.is_send = 1;
@@ -371,18 +338,15 @@ void run_mercury(void)
       Common.isOpen = 0;
     }
   }
-  else
-  {
+  else {
     connect_mercury();
     Common.index_com = 0;
   } 
 }
 
 /* The function send data to lora server */
-void send_lora_mercury(void)
-{
-  if(Common.error)
-  {
+void send_lora_mercury(void) {
+  if(Common.error) {
     uint8_t send_err[] = {0x02, 0x01, 0x00, 0x00, 0x00, 0x00};
     
     /* Error reading metrics */
@@ -400,8 +364,7 @@ void send_lora_mercury(void)
     Common.request_05 = false;
     Common.index_com = 0;
     
-    if(Common.netAddrDev[0] <= Common.net_addr_count && !Common.desc_integral)
-    {
+    if(Common.netAddrDev[0] <= Common.net_addr_count && !Common.desc_integral) {
       /* Calculate the increment of time from the beginning 
                      of the request to the end of sending */
       Common.delta_t = (dm_to_is74_main_var.UnixTime - Common.t);
@@ -420,18 +383,13 @@ void send_lora_mercury(void)
     Common.is_send = 0;
     Common.error = 0;
   }
-  else
-  {
-    switch(Common.index_com)
-    {
+  else {
+    switch(Common.index_com) {
       /* Relay event response */
-      case 1:
-      { 
-        if(Common.flag_relay_status)
-        {
+      case 1: { 
+        if(Common.flag_relay_status) {
           /* Form a message to send */
-          for(uint8_t i = 0; i < 21; i++)
-          {
+          for(uint8_t i = 0; i < 21; i++) {
             /* Frequence */
              if(i < 3) tmp[i] = MerCon.currentDataMer[i+76];
              
@@ -452,10 +410,8 @@ void send_lora_mercury(void)
       } break;
       
       /* Response on request 04 */
-      case 2:
-      { 
-        if(Common.request_04)
-        {
+      case 2: { 
+        if(Common.request_04) {
            struct tm *date = epoche_to_date();
           
            /* Relay status */
@@ -473,8 +429,7 @@ void send_lora_mercury(void)
            tmp[7] = date->tm_sec;
            
            /* Form a message to send */
-           for(uint8_t i = 0; i < 21; i++)
-           {
+           for(uint8_t i = 0; i < 21; i++) {
              /* Frequence */
              if(i < 3) tmp[i+8] = MerCon.currentDataMer[i+76];
              
@@ -498,13 +453,10 @@ void send_lora_mercury(void)
       } break;
       
       /* Send integral data (month) */
-      case 3:
-      { 
-        if(Common.send_month || Common.desc_integral == 0x81)
-        {      
+      case 3: { 
+        if(Common.send_month || Common.desc_integral == 0x81) {      
           /* Form a message to send */
-          for(uint8_t i = 0; i < 204; i++)
-          {
+          for(uint8_t i = 0; i < 204; i++) {
             /* Serivce information */
             if(i < 4) tmp[i] = MerCon.serviceInfo[i];
             
@@ -526,8 +478,7 @@ void send_lora_mercury(void)
           uint32_t tmp_month[] = {Common.send_month = false};
           dm_API_SaveToEEPROM(EEPR_SEND_M, tmp_month, 0x01);
                 
-          if(Common.desc_integral == 0x81)
-          {
+          if(Common.desc_integral == 0x81) {
             /* Reset session variables */
             Common.request_05 = false;          
             Common.netAddr = 0x00;
@@ -539,13 +490,10 @@ void send_lora_mercury(void)
       } break;
       
       /* Send integral data (day) */
-      case 4:
-      {
-        if(Common.send_day || Common.desc_integral == 0x82)
-        {  
+      case 4: {
+        if(Common.send_day || Common.desc_integral == 0x82) {  
           /* Form a message to send */
-          for(uint8_t i = 0; i < 204; i++)
-          {
+          for(uint8_t i = 0; i < 204; i++) {
             /* Serivce information */
             if(i < 4) tmp[i] = MerCon.serviceInfo[i];
             
@@ -567,8 +515,7 @@ void send_lora_mercury(void)
           uint32_t tmp_day[] = {Common.send_day = false};
           dm_API_SaveToEEPROM(EPPR_SEND_D, tmp_day, 0x01);
                   
-          if(Common.desc_integral == 0x82)
-          {
+          if(Common.desc_integral == 0x82) {
             /* Reset session variables */
             Common.request_05 = false;
             Common.netAddr = 0x00;
@@ -580,13 +527,10 @@ void send_lora_mercury(void)
       } break;
       
       /* Sessions response. Send current data */
-      case 5:
-      {
-        if(dm_to_is74_main_var.LoRaTxTimerFlag || Common.desc_integral == 0x84)
-        {        
+      case 5: {
+        if(dm_to_is74_main_var.LoRaTxTimerFlag || Common.desc_integral == 0x84) {        
           /* Form a message to send */
-          for(uint16_t i = 0; i < 186; i++)
-          {
+          for(uint16_t i = 0; i < 186; i++) {
             /* Serivce information */
             if(i < 4) tmp[i] = MerCon.serviceInfo[i];
             
@@ -612,10 +556,8 @@ void send_lora_mercury(void)
           Common.index_com = 0; 
           
           /* Set timer to delay */
-          if(Common.netAddrDev[0] <= Common.net_addr_count && !Common.desc_integral)
-          {
-            /* Calculate the increment of time from the beginning 
-                             of the request to the end of sending */
+          if(Common.netAddrDev[0] <= Common.net_addr_count && !Common.desc_integral) {
+            /* Calculate the increment of time from the beginning of the request to the end of sending */
             Common.delta_t = (dm_to_is74_main_var.UnixTime - Common.t);
             Common.delta_delay = Common.delay - Common.delta_t * 1000;
             dm_API_SetLoRaTxTimer(Common.delta_delay);
